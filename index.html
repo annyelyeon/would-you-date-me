@@ -44,6 +44,7 @@ body {
 
 .card {
   position: relative;
+  min-width: 0;
   z-index: 1;
   width: 100%;
   max-width: 460px;
@@ -140,8 +141,8 @@ button:active { transform: scale(.96); }
 }
 
 /* Date & time */
-.fields { display: grid; gap: 14px; text-align: left; }
-.field { display: grid; gap: 6px; }
+.fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; text-align: left; }
+.field  { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; }
 .field label { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .field input {
   font: 600 1.05rem var(--body);
@@ -153,8 +154,16 @@ button:active { transform: scale(.96); }
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
+  max-width: 100%;
+  display: block;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 50px;
+  line-height: 1.2;
 }
 .field input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px #ffd0da; }
+.field input::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.field input::-webkit-datetime-edit { padding: 0; }
 .quick { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   background: #fff;
