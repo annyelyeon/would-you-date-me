@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Would You Date Me?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,600,100;1,9..144,500,100;1,9..144,700,100&family=Nunito:wght@400;600;800&display=swap">
+<style>
+/* Layout: one centered "love note" card per screen, swapped in place; a deliberate single warm look (no dark variant) */
+:root {
+  -webkit-text-size-adjust: 100%;
+  --blush: #ffe3e8;
+  --paper: #fffafa;
+  --ink: #5a1024;
+  --red: #e0244f;
+  --red-deep: #b5163b;
+  --muted: #9b5b6c;
+  --line: #f5c2cd;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+html, body { height: 100%; margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background: var(--blush);
+  background-image: radial-gradient(circle at 20% 15%, #fff1f4 0, transparent 40%),
+                    radial-gradient(circle at 85% 90%, #ffd0da 0, transparent 45%);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  overflow-x: hidden;
+}
+#hearts { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 28px;
+  box-shadow: 0 18px 50px -20px rgba(181, 22, 59, .35);
+  padding: 40px 28px 32px;
+  box-sizing: border-box;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  animation: pop .45s cubic-bezier(.2, 1.4, .4, 1);
+}
+.card[hidden] { display: none !important; }
+@keyframes pop { from { transform: scale(.92); opacity: .4; } to { transform: none; opacity: 1; } }
+
+.step {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1, h2 {
+  font-family: var(--display);
+  font-variation-settings: "SOFT" 100;
+  font-weight: 600;
+  margin: 0;
+  text-wrap: balance;
+  line-height: 1.05;
+}
+h1 { font-size: clamp(2.4rem, 9vw, 3.2rem); }
+h1 em, h2 em { font-style: italic; color: var(--red); }
+h2 { font-size: clamp(1.8rem, 7vw, 2.3rem); }
+.sub { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+
+.big-heart { font-size: 56px; line-height: 1; color: var(--red); animation: beat 1.2s ease-in-out infinite; }
+@keyframes beat { 0%,100% { transform: scale(1); } 15% { transform: scale(1.15); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } }
+
+/* Yes / No */
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 120px;
+}
+button {
+  font-family: var(--body);
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: font-size .3s cubic-bezier(.2, 1.4, .4, 1), padding .3s, transform .15s, background .2s, opacity .3s;
+}
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+button:active { transform: scale(.96); }
+#yes {
+  background: var(--red);
+  color: #fff;
+  font-size: 1.15rem;
+  padding: .7em 1.8em;
+  box-shadow: 0 8px 20px -8px rgba(224, 36, 79, .7);
+}
+#yes:hover { background: var(--red-deep); }
+#no {
+  background: #fff;
+  color: var(--muted);
+  border: 1.5px solid var(--line);
+  font-size: 1.15rem;
+  padding: .7em 1.8em;
+}
+.plea { min-height: 1.4em; margin: 0; font-weight: 700; color: var(--red-deep); }
+
+.primary {
+  background: var(--red);
+  color: #fff;
+  font-size: 1.05rem;
+  padding: 14px 24px;
+  width: 100%;
+  box-shadow: 0 8px 20px -8px rgba(224, 36, 79, .7);
+}
+.primary:hover { background: var(--red-deep); }
+.primary:disabled { background: var(--line); color: #fff; box-shadow: none; cursor: not-allowed; }
+.ghost {
+  background: transparent;
+  color: var(--muted);
+  font-size: .9rem;
+  padding: 6px 12px;
+  font-weight: 600;
+}
+
+/* Date & time */
+.fields { display: grid; gap: 14px; text-align: left; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.field input {
+  font: 600 1.05rem var(--body);
+  color: var(--ink);
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.field input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px #ffd0da; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-size: .85rem;
+  font-weight: 700;
+  padding: 7px 12px;
+}
+.chip:hover { border-color: var(--red); }
+
+/* Date ideas */
+.ideas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.idea {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 18px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: .98rem;
+  position: relative;
+}
+.idea .ico { font-size: 30px; line-height: 1; }
+.idea small { font-weight: 600; color: var(--muted); font-size: .78rem; }
+.idea[aria-pressed="true"] { border-color: var(--red); background: #fff0f3; box-shadow: 0 0 0 2px var(--red) inset; }
+.idea[aria-pressed="true"]::after {
+  content: "♥";
+  position: absolute;
+  top: 8px; right: 12px;
+  color: var(--red);
+  font-size: 16px;
+}
+
+/* Finale */
+.summary {
+  background: #fff0f3;
+  border: 1.5px dashed var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+}
+.row { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: baseline; }
+.row dt { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.row dd { margin: 0; font-weight: 700; min-width: 0; }
+dl { margin: 0; display: grid; gap: 10px; }
+.toast { min-height: 1.2em; margin: 0; font-size: .9rem; color: var(--red-deep); font-weight: 700; }
+#copyText { width: 100%; box-sizing: border-box; font: 600 .9rem var(--body); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px; color: var(--ink); background: #fff; resize: none; }
+
+@media (max-width: 380px) {
+  .card { padding: 32px 20px 26px; }
+  .ideas { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="hearts" aria-hidden="true"></canvas>
+
+<!-- Screen 1 -->
+<section class="card" id="s1" aria-labelledby="q">
+  <div class="big-heart" aria-hidden="true">♥</div>
+  <h1 id="q">Would you <em>date</em> me?</h1>
+  <div class="choices">
+    <button id="yes" type="button">Yes</button>
+    <button id="no" type="button">No</button>
+  </div>
+  <p class="plea" id="plea" aria-live="polite"></p>
+</section>
+
+<!-- Screen 2 -->
+<section class="card" id="s2" hidden aria-labelledby="h2a">
+  <div class="step">Step 1 of 2</div>
+  <h2 id="h2a">When are you <em>free?</em></h2>
+  <p class="sub">Pick a day and a time. I'll be ready.</p>
+  <div class="fields">
+    <div class="field">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="field">
+      <label for="time">Time</label>
+      <input type="time" id="time" step="900">
+      <div class="quick" role="group" aria-label="Quick times">
+        <button type="button" class="chip" data-time="11:00">11:00 AM</button>
+        <button type="button" class="chip" data-time="14:00">2:00 PM</button>
+        <button type="button" class="chip" data-time="18:00">6:00 PM</button>
+        <button type="button" class="chip" data-time="19:30">7:30 PM</button>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="primary" id="toIdeas" disabled>Next</button>
+  <button type="button" class="ghost" data-back="s1">Back</button>
+</section>
+
+<!-- Screen 3 -->
+<section class="card" id="s3" hidden aria-labelledby="h3a">
+  <div class="step">Step 2 of 2</div>
+  <h2 id="h3a">What should we <em>do?</em></h2>
+  <p class="sub">Pick as many as you like.</p>
+  <div class="ideas">
+    <button type="button" class="idea" aria-pressed="false" data-idea="Shopping"><span class="ico" aria-hidden="true">🛍️</span>Shopping<small>Window or real</small></button>
+    <button type="button" class="idea" aria-pressed="false" data-idea="Brunch / Café"><span class="ico" aria-hidden="true">☕</span>Brunch / Café<small>Coffee &amp; cake</small></button>
+    <button type="button" class="idea" aria-pressed="false" data-idea="Dinner"><span class="ico" aria-hidden="true">🍷</span>Dining / Dinner<small>Somewhere nice</small></button>
+    <button type="button" class="idea" aria-pressed="false" data-idea="Activity"><span class="ico" aria-hidden="true">🎳</span>Activity<small>Let's play</small></button>
+  </div>
+  <button type="button" class="primary" id="toEnd" disabled>Pick at least one</button>
+  <button type="button" class="ghost" data-back="s2">Back</button>
+</section>
+
+<!-- Screen 4 -->
+<section class="card" id="s4" hidden aria-labelledby="h4a">
+  <div class="big-heart" aria-hidden="true">♥</div>
+  <h1 id="h4a">Thank you!<br><em>I love you</em></h1>
+  <div class="summary">
+    <dl>
+      <div class="row"><dt>When</dt><dd id="sumWhen"></dd></div>
+      <div class="row"><dt>Plans</dt><dd id="sumWhat"></dd></div>
+    </dl>
+  </div>
+  <p class="sub">Send this back to me so I know what to plan.</p>
+  <textarea id="copyText" rows="3" readonly aria-label="Your answer"></textarea>
+  <button type="button" class="primary" id="copy">Copy my answer</button>
+  <p class="toast" id="toast" aria-live="polite"></p>
+</section>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => {
+    document.querySelectorAll(".card").forEach((c) => (c.hidden = c.id !== id));
+    window.scrollTo(0, 0);
+  };
+
+  /* ---------- Screen 1: the No button that gives up ---------- */
+  const yes = $("yes"), no = $("no"), plea = $("plea");
+  const pleas = [
+    "Are you sure?",
+    "Really sure?",
+    "Think again…",
+    "Pretty please?",
+    "I'll buy dessert!",
+    "You're breaking my heart 💔",
+    "Last chance to be nice…",
+    "Okay, I'm getting sad now",
+    "The No button is tired",
+    "No is no longer an option ♥",
+  ];
+  let noCount = 0;
+  no.addEventListener("click", () => {
+    noCount++;
+    const yesSize = 1.15 + noCount * 0.28;      // rem, grows every press
+    const noSize = Math.max(0.5, 1.15 - noCount * 0.07);
+    yes.style.fontSize = yesSize + "rem";
+    no.style.fontSize = noSize + "rem";
+    no.style.opacity = String(Math.max(0.35, 1 - noCount * 0.07));
+    plea.textContent = pleas[Math.min(noCount, pleas.length) - 1];
+    if (noCount >= 10) {
+      no.remove();
+      yes.focus();
+    }
+  });
+  yes.addEventListener("click", () => {
+    burst(40);
+    show("s2");
+  });
+
+  /* ---------- Screen 2: date & time ---------- */
+  const date = $("date"), time = $("time"), toIdeas = $("toIdeas");
+  const today = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  date.min = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  const checkWhen = () => (toIdeas.disabled = !(date.value && time.value));
+  date.addEventListener("input", checkWhen);
+  time.addEventListener("input", checkWhen);
+  document.querySelectorAll(".chip").forEach((c) =>
+    c.addEventListener("click", () => { time.value = c.dataset.time; checkWhen(); })
+  );
+  toIdeas.addEventListener("click", () => show("s3"));
+
+  /* ---------- Screen 3: date ideas (multi-select) ---------- */
+  const toEnd = $("toEnd");
+  const ideas = [...document.querySelectorAll(".idea")];
+  const picked = () => ideas.filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.idea);
+  ideas.forEach((b) =>
+    b.addEventListener("click", () => {
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+      const n = picked().length;
+      toEnd.disabled = n === 0;
+      toEnd.textContent = n === 0 ? "Pick at least one" : "It's a date!";
+    })
+  );
+  toEnd.addEventListener("click", () => {
+    const d = new Date(`${date.value}T${time.value}`);
+    const when = d.toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric" }) +
+      " · " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const what = picked().join(", ");
+    $("sumWhen").textContent = when;
+    $("sumWhat").textContent = what;
+    $("copyText").value = `Yes, I'll date you ♥\nWhen: ${when}\nPlans: ${what}`;
+    show("s4");
+    burst(90);
+  });
+
+  document.querySelectorAll("[data-back]").forEach((b) => b.addEventListener("click", () => show(b.dataset.back)));
+
+  /* ---------- Copy answer ---------- */
+  $("copy").addEventListener("click", () => {
+    const ta = $("copyText");
+    const fallback = () => { ta.focus(); ta.select(); $("toast").textContent = "Selected. Copy it and send it to me!"; };
+    try {
+      navigator.clipboard.writeText(ta.value).then(
+        () => ($("toast").textContent = "Copied! Now paste it to me ♥"),
+        fallback
+      );
+    } catch (e) { fallback(); }
+  });
+
+  /* ---------- Floating hearts ---------- */
+  const cv = $("hearts"), ctx = cv.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W, H, parts = [];
+  const resize = () => { W = cv.width = innerWidth * devicePixelRatio; H = cv.height = innerHeight * devicePixelRatio; };
+  resize(); addEventListener("resize", resize);
+  const colors = ["#e0244f", "#ff6f91", "#ffb3c4", "#b5163b"];
+  function spawn(fromBottom) {
+    const s = (8 + Math.random() * 18) * devicePixelRatio;
+    parts.push({
+      x: Math.random() * W,
+      y: fromBottom ? H + s : H * (0.5 + Math.random() * 0.5),
+      s, vy: (0.4 + Math.random() * 1.2) * devicePixelRatio * (fromBottom ? 1 : 3),
+      vx: (Math.random() - 0.5) * devicePixelRatio,
+      a: fromBottom ? 0.35 : 0.9,
+      c: colors[(Math.random() * colors.length) | 0],
+      r: Math.random() * Math.PI,
+    });
+  }
+  function heart(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.sin(p.r) * 0.3);
+    ctx.globalAlpha = p.a;
+    ctx.fillStyle = p.c;
+    const s = p.s;
+    ctx.beginPath();
+    ctx.moveTo(0, s * 0.3);
+    ctx.bezierCurveTo(-s, -s * 0.4, -s * 0.5, -s, 0, -s * 0.45);
+    ctx.bezierCurveTo(s * 0.5, -s, s, -s * 0.4, 0, s * 0.3);
+    ctx.fill();
+    ctx.restore();
+  }
+  function burst(n) { if (!reduce) for (let i = 0; i < n; i++) spawn(false); }
+  window.burst = burst;
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    if (Math.random() < 0.06 && parts.length < 60) spawn(true);
+    parts.forEach((p) => { p.y -= p.vy; p.x += p.vx; p.r += 0.03; if (p.a > 0.35) p.a -= 0.004; heart(p); });
+    parts = parts.filter((p) => p.y > -p.s * 2);
+    requestAnimationFrame(tick);
+  }
+  if (!reduce) tick();
+})();
+</script>
+</body>
+</html>
